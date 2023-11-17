@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GitHub Repository Search</title>
+    <!-- Include Bootstrap CSS -->
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 0;
+      }
+  
+      .container {
+        text-align: center;
+        margin: 50px auto;
+      }
+  
+      #searchInput {
+        width: 100%;
+        max-width: 500px;
+        padding: 10px;
+        box-sizing: border-box;
+        font-size: 16px;
+      }
+  
+      #searchButton {
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+      }
+  
+      #searchResults {
+        margin-top: 20px;
+      }
+  
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+  
+      th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+  
+      th {
+        background-color: #007bff;
+        color: #fff;
+      }
+  
+      tbody tr:hover {
+        background-color: #f0f0f0;
+      }
+    </style>
+    <!-- Include Bootstrap JS -->
+   
+    <!-- Include Font Awesome icons -->
+    <script
+      src="https://kit.fontawesome.com/405f53a43e.js"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <div class="container">
+      <div>
+        <input type="text" id="searchInput" placeholder="Enter search keyword" />
+        <button onclick="searchRepositories()" id="searchButton">Search</button>
+      </div>
+  
+      <div id="searchResults"></div>
+    </div>
+  
+      <script>
+        function searchRepositories() {
+          var searchTerm = document.getElementById("searchInput").value;
+          fetch(
+            `http://localhost:3000/search/repositories?searchTerm=${searchTerm}`
+          )
+            .then((response) => response.json())
+            .then((data) => {
+              const searchResults = document.getElementById("searchResults");
+              searchResults.innerHTML = ""; // Clear previous search results
+
+              if (data && data.items.length > 0) {
+                const table = document.createElement("table");
+                table.classList.add("table", "table-bordered");
+                table.innerHTML = `
+                            <thead>
+                                <tr>
+                                    <th>Avatar</th>
+                                    <th>Owner</th>
+                                    <th>Repository</th>
+                                    <th>Description</th>
+                                    <th>Stars</th>
+                                    <th>Forks</th>
+                                    <th>View on GitHub</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        `;
+
+                const tbody = table.querySelector("tbody");
+
+                data.items.forEach((item) => {
+                  const row = document.createElement("tr");
+                  row.innerHTML = `
+                                <td><img src="${item.owner.avatar_url}" alt="avatar" style="max-width: 50px;"></td>
+                                <td>${item.owner.login}</td>
+                                <td>${item.name}</td>
+                                <td>${item.description}</td>
+                                <td>${item.stargazers_count}</td>
+                                <td>${item.forks_count}</td>
+                                <td><a href="${item.html_url}" target="_blank">View on GitHub</a></td>
+                            `;
+
+                  tbody.appendChild(row);
+                });
+
+                searchResults.appendChild(table);
+              } else {
+                searchResults.innerHTML = `<p>No results found</p>`;
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+            });
+        }
+      </script>
+    </div>
+  </body>
+</html>
